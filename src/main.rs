@@ -1,6 +1,6 @@
 mod input_constants;
 
-use day1_part1::{process_d1p1, process_d1p2};
+use day1::{process_d1p1, process_d1p2};
 
 fn main() {
     println!(
@@ -13,7 +13,7 @@ fn main() {
     );
 }
 
-mod day1_part1 {
+mod day1 {
     use std::collections::HashMap;
 
     fn parse_lists(input: &str) -> (Vec<i32>, Vec<i32>) {
