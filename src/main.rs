@@ -110,7 +110,7 @@ mod day2 {
     fn parse_reports(input: &str) -> impl Iterator<Item = Record> + use<'_> {
         input.split("\n").map(|line| -> Record {
             let parts = line.split(" ");
-            let mut num_iter =
+            let num_iter =
                 parts.map(|number| number.parse::<i32>().expect("Failed to parse a number"));
             return num_iter.collect::<Record>();
         })
@@ -118,32 +118,32 @@ mod day2 {
 
     #[derive(PartialEq)]
     enum SafetyGrade {
-        Safe,       // report is safe. Count this one!
-        TooSlow,    // report changes by < 1
-        TooFast,    // report changes by > 3
-        Maxima,     // report was going up, and is now going down
-        Minima,     // report was going down, and is now going up
+        Safe,    // report is safe. Count this one!
+        TooSlow, // report changes by < 1
+        TooFast, // report changes by > 3
+        Maxima,  // report was going up, and is now going down
+        Minima,  // report was going down, and is now going up
     }
 
     fn grade_record(record: Record) -> SafetyGrade {
         let mut increasing = false;
         let mut decreasing = false;
 
-        for idx in 0..(record.len()-1) {
+        for idx in 0..(record.len() - 1) {
             let first = record.get(idx).unwrap();
-            let second = record.get(idx+1).unwrap();
+            let second = record.get(idx + 1).unwrap();
             let slope = second - first;
-            
+
             if slope == 0 {
                 // There was no change. Fail TooSlow
-                return SafetyGrade::TooSlow
+                return SafetyGrade::TooSlow;
             } else if slope > 0 {
                 // slope increasing. Check if local minima, then slope magnitude
                 increasing = true;
                 if decreasing {
                     // if decreasing was set before, this is a (local) minima. Fail
                     return SafetyGrade::Minima;
-                } else if slope > 3{
+                } else if slope > 3 {
                     // if rising faster than 3, emit failure
                     return SafetyGrade::TooFast;
                 }
@@ -159,21 +159,21 @@ mod day2 {
                 }
             }
         }
-        
+
         // no unsafe values were detected. Must be safe
-        return SafetyGrade::Safe
+        return SafetyGrade::Safe;
     }
 
     pub fn process_d2p1(input: &str) -> i32 {
         parse_reports(input)
-        .map(grade_record)
-        .fold(0, |count, grade| {
-            if grade == SafetyGrade::Safe {
-                count + 1
-            } else {
-                count
-            }
-        })
+            .map(grade_record)
+            .fold(0, |count, grade| {
+                if grade == SafetyGrade::Safe {
+                    count + 1
+                } else {
+                    count
+                }
+            })
     }
 
     #[cfg(test)]
