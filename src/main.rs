@@ -105,21 +105,14 @@ mod day1 {
 
 mod day2 {
 
-    type Record = [i32; 5];
+    type Record = Vec<i32>;
 
     fn parse_reports(input: &str) -> impl Iterator<Item = Record> + use<'_> {
         input.split("\n").map(|line| -> Record {
             let parts = line.split(" ");
             let mut num_iter =
                 parts.map(|number| number.parse::<i32>().expect("Failed to parse a number"));
-            const ERRMSG: &str = "Ran out of digits while collecting report";
-            return [
-                num_iter.next().expect(ERRMSG),
-                num_iter.next().expect(ERRMSG),
-                num_iter.next().expect(ERRMSG),
-                num_iter.next().expect(ERRMSG),
-                num_iter.next().expect(ERRMSG),
-            ];
+            return num_iter.collect::<Record>();
         })
     }
 
