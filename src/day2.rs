@@ -109,7 +109,7 @@ pub fn process_d2p2(input: &str) -> i32 {
         .into_iter()
         .map(|record| (record.clone(), grade_record(record)))
         .map(|(record, grade)| {
-            println!("Record {:?} was graded {:?}", record, grade);
+            // println!("Record {:?} was graded {:?}", record, grade);
             grade
         })
         .fold(0, |count, grade| {
@@ -119,12 +119,12 @@ pub fn process_d2p2(input: &str) -> i32 {
                 count
             }
         });
-    println!(
-        "Passes: {}\nRecovered: {}\n  Total: {}",
-        passes,
-        recovered_passes,
-        (passes + recovered_passes)
-    );
+    // println!(
+    //     "Passes: {}\nRecovered: {}\n  Total: {}",
+    //     passes,
+    //     recovered_passes,
+    //     (passes + recovered_passes)
+    // );
     passes + recovered_passes
 }
 
