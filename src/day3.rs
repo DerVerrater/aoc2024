@@ -2,34 +2,15 @@ pub fn process_d3p1(input: &str) -> i32 {
     let mut sum: i32 = 0;
     let mut scan_location = input;
     while let Ok(keyword_start) = try_find_mul(scan_location) {
-        // Get remaining input and digits, or else advance slice by 1 and try again.
-        let Ok((remainder, first_digits)) = try_collect_digits(keyword_start) else {
-            // TODO: Advance by 4 to skip the whole "mul(" text, instead of scanning "ul(_", "l(__", and "(___"
-            scan_location = &scan_location[1..];
-            continue;
-        };
-        // consume the following comma, or else advance slice
-        let Ok(remainder) = try_consume_comma(remainder) else {
-            scan_location = &scan_location[1..];
-            continue;
-        };
-        // get the *next* input digits, or else advance slice
-        let Ok((remainder, second_digits)) = try_collect_digits(remainder) else {
-            scan_location = &scan_location[1..];
-            continue;
-        };
-        // get the closing parenthesis, or else advance slice
-        let Ok(remainder) = try_consume_closeparen(remainder) else {
-            scan_location = &scan_location[1..];
-            continue;
-        };
-
         // parsing has succeeded in finding a mul(x,y) instruction!
-
-        // 1: Advance scan location forward to the remaining text
-        scan_location = remainder;
-        // 2: Multiply & accumulate the numbers
-        sum += first_digits * second_digits;
+        if let Ok((remainder, value)) = try_consume_instruction(keyword_start) {
+            // 1: Advance scan location forward to the remaining text
+            scan_location = remainder;
+            // 2: Multiply & accumulate the numbers
+            sum += value;
+        } else {
+            scan_location = &scan_location[1..];
+        }
     }
     return sum;
 }
@@ -40,6 +21,19 @@ fn try_find_mul(input: &str) -> Result<&str, ParseError> {
     } else {
         return Err(ParseError::EndOfText);
     }
+}
+
+fn try_consume_instruction(input: &str) -> Result<(&str, i32), ParseError> {
+    // Get remaining input and digits, or else advance slice by 1 and try again.
+    let (remainder, first_digits) = try_collect_digits(input)?;
+    // consume the following comma, or else advance slice
+    let remainder = try_consume_comma(remainder)?;
+    // get the *next* input digits, or else advance slice
+    let (remainder, second_digits) = try_collect_digits(remainder)?;
+    // get the closing parenthesis, or else advance slice
+    let remainder = try_consume_closeparen(remainder)?;
+    
+    Ok((&remainder, first_digits * second_digits))
 }
 
 fn try_collect_digits(input: &str) -> Result<(&str, i32), ParseError> {
