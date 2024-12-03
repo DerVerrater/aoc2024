@@ -102,10 +102,8 @@ fn try_consume_closeparen(input: &str) -> Result<&str, ParseError> {
 
 #[derive(Debug, PartialEq)]
 enum ParseError {
-    NoKeyword,
     // MissingOpenParen isn't here because the match is part of the "mul(" pattern
     MissingCloseParen,
-    ExtraSpace,
     NoNumber,
     NoComma,
     EndOfText,
