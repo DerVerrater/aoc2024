@@ -1,26 +1,51 @@
 pub fn process_d3p1(input: &str) -> i32 {
     let mut sum: i32 = 0;
     let mut scan_location = input;
-    while let Ok(keyword_start) = try_find_mul(scan_location) {
-        // parsing has succeeded in finding a mul(x,y) instruction!
-        if let Ok((remainder, value)) = try_consume_instruction(keyword_start) {
-            // 1: Advance scan location forward to the remaining text
-            scan_location = remainder;
-            // 2: Multiply & accumulate the numbers
-            sum += value;
+    loop {
+        if let Ok(keyword_start) = try_find_mul(scan_location) {
+            // parsing has succeeded in finding a mul(x,y) instruction!
+            if let Ok((remainder, value)) = try_consume_instruction(keyword_start) {
+                // 1: Advance scan location forward to the remaining text
+                scan_location = remainder;
+                // 2: Multiply & accumulate the numbers
+                sum += value;
+            } else {
+                scan_location = &scan_location[1..];
+            }
         } else {
-            scan_location = &scan_location[1..];
+            // if no "mul" keyword was found, advance pointer
+            // guard against reaching the end of the pointer.
+            if scan_location.len() > 0 {
+                scan_location = &scan_location[1..];
+            } else {
+                break;
+            }
         }
     }
     return sum;
 }
 
 fn try_find_mul(input: &str) -> Result<&str, ParseError> {
-    if let Some(idx) = input.find("mul(") {
-        return Ok(&input[idx + 4..]);
-    } else {
-        return Err(ParseError::EndOfText);
+    let mut input_iter = input.chars();
+    for ref_c in "mul(".chars() {
+        // get next character...
+        if let Some(c) = input_iter.next() {
+            // if it matches, continue to the next one
+            if ref_c == c {
+                continue;
+            } else {
+                // if it doesn't, fail ::NotMulKeyword
+                return Err(ParseError::NotMulKeyword);
+            }
+        } else {
+            // if there is no more input, fail ::EndOfText
+            return Err(ParseError::EndOfText);
+        }
     }
+    // If all reference chars matched an input char...
+    // ...comparison passed!
+
+    return Ok(&input[4..]);
 }
 
 fn try_consume_instruction(input: &str) -> Result<(&str, i32), ParseError> {
@@ -96,6 +121,7 @@ fn try_consume_closeparen(input: &str) -> Result<&str, ParseError> {
 
 #[derive(Debug, PartialEq)]
 enum ParseError {
+    NotMulKeyword,
     // MissingOpenParen isn't here because the match is part of the "mul(" pattern
     MissingCloseParen,
     NoNumber,
