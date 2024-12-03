@@ -25,9 +25,10 @@ pub fn process_d3p1(input: &str) -> i32 {
     return sum;
 }
 
-fn try_find_mul(input: &str) -> Result<&str, ParseError> {
+
+fn try_find_tag<'input>(input: &'input str, tag: &'input str) -> Result<&'input str, ParseError> {
     let mut input_iter = input.chars();
-    for ref_c in "mul(".chars() {
+    for ref_c in tag.chars() {
         // get next character...
         if let Some(c) = input_iter.next() {
             // if it matches, continue to the next one
@@ -46,6 +47,10 @@ fn try_find_mul(input: &str) -> Result<&str, ParseError> {
     // ...comparison passed!
 
     return Ok(&input[4..]);
+}
+
+fn try_find_mul(input: &str) -> Result<&str, ParseError> {
+    try_find_tag(input, "mul(")
 }
 
 fn try_consume_instruction(input: &str) -> Result<(&str, i32), ParseError> {
