@@ -105,11 +105,19 @@ enum ParseError {
 
 #[cfg(test)]
 mod test {
+    use crate::input_constants;
+
     use super::*;
 
     const SAMPLE_TEXT: &str =
         "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
 
+    #[test]
+    fn run_part1_real() {
+        let expected = 157621318;
+        let result = process_d3p1(input_constants::DAY3);
+        assert_eq!(result, expected);
+    }
     #[test]
     fn run_part1_example() {
         let result = process_d3p1(SAMPLE_TEXT);
