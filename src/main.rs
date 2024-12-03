@@ -104,6 +104,7 @@ mod day1 {
 }
 
 mod day2 {
+    use itertools::Itertools;
 
     type Record = Vec<i32>;
 
@@ -129,11 +130,13 @@ mod day2 {
         let mut increasing = false;
         let mut decreasing = false;
 
-        for idx in 0..(record.len() - 1) {
-            let first = record.get(idx).unwrap();
-            let second = record.get(idx + 1).unwrap();
-            let slope = second - first;
+        let diffs: Vec<i32> = record
+            .into_iter()
+            .tuple_windows()
+            .map(|(current, next)| next - current)
+            .collect();
 
+        for slope in diffs.into_iter() {
             if slope == 0 {
                 // There was no change. Fail TooSlow
                 return SafetyGrade::TooSlow;
