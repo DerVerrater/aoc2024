@@ -37,7 +37,7 @@ pub fn process_d3p2(input: &str) -> i32 {
         //      Try for longer word before shorter so we don't get a false match
         // 3. find "do"
         // 4. advance pointer and try again
-
+        let mut needs_advancement: i32 = 3;
         let maybe_mul = try_consume_instruction(scan_location);
         match maybe_mul {
             /* if successful...
@@ -45,45 +45,47 @@ pub fn process_d3p2(input: &str) -> i32 {
                2. accumulate value according to the enablement flag
             */
             Ok((remainder, value)) => {
-                if remainder.len() > 0 {
-                    scan_location = remainder;
-                }
+                scan_location = remainder;
                 if execute_enable {
                     sum += value;
                 }
             }
             // When we see "::EndOfText", stop the machine. There's no more to read.
             Err(ParseError::EndOfText) => break,
-            Err(_) => {}
+            Err(_) => {
+                needs_advancement -= 1;
+            }
         }
 
         let maybe_dont = try_consume_dont(scan_location);
         match maybe_dont {
             Ok(remainder) => {
-                if remainder.len() > 0 {
-                    scan_location = remainder;
-                }
+                scan_location = remainder;
                 execute_enable = false;
             }
             Err(ParseError::EndOfText) => break,
-            Err(_) => {}
+            Err(_) => {
+                needs_advancement -= 1;
+            }
         }
 
         let maybe_do = try_consume_do(scan_location);
         match maybe_do {
             Ok(remainder) => {
-                if remainder.len() > 0 {
-                    scan_location = remainder;
-                }
+                scan_location = remainder;
                 execute_enable = true;
             }
             Err(ParseError::EndOfText) => break,
-            Err(_) => { /* Uh */ }
+            Err(_) => {
+                needs_advancement -= 1;
+            }
         }
-        if scan_location.len() > 0 {
-            scan_location = &scan_location[1..];
-        } else {
-            break;
+        if needs_advancement == 0 {
+            if scan_location.len() > 0 {
+                scan_location = &scan_location[1..];
+            } else {
+                break;
+            }
         }
     }
     return sum;
@@ -241,6 +243,15 @@ mod test {
         let result = process_d3p2(SAMPLE_TEXT_2);
         eprintln!("Got result: {result}");
         assert_eq!(result, 48);
+    }
+
+    // I found it
+    #[test]
+    fn test_part2_doubledouble() {
+        let input = "mul(2,2)mul(5,5)";
+        let expected = 29;
+        let result = process_d3p2(input);
+        assert_eq!(result, expected);
     }
 
     #[test]
