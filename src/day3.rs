@@ -239,6 +239,13 @@ mod test {
     }
 
     #[test]
+    fn run_part2_real() {
+        let expected = 79845780;
+        let result = process_d3p2(input_constants::DAY3);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
     fn run_part2_example() {
         let result = process_d3p2(SAMPLE_TEXT_2);
         eprintln!("Got result: {result}");
