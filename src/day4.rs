@@ -27,6 +27,32 @@ pub fn process_d4p1(input: &str) -> i32 {
     return count;
 }
 
+pub fn process_d4p2(input: &str) -> i32 {
+    let grid = Grid::from(input);
+    let point_iter = (0..grid.height()).cartesian_product(0..grid.width());
+    /* X MAS patterns
+    M.S     M.M     S.M     S.S
+    .A.     .A.     .A.     .A.
+    M.S     S.S     S.M     M.M
+     */
+    let patterns = [
+        Grid::from("M.S\n.A.\nM.S"),
+        Grid::from("M.M\n.A.\nS.S"),
+        Grid::from("S.M\n.A.\nS.M"),
+        Grid::from("S.S\n.A.\nM.M"),
+    ];
+    let mut count = 0;
+    for (y, x) in point_iter {
+        for pattern in patterns.iter() {
+            if check_kernel(&grid, (x, y), &pattern) {
+                count += 1;
+            }
+        }
+    }
+
+    return count;
+}
+
 #[derive(Debug)]
 struct Grid {
     width: isize,
@@ -119,6 +145,32 @@ fn check_direction(
     }
 }
 
+/*
+Iterate pattern grid and compare it against the input grid.
+
+`location` represents the top-left corner to simplify reference frame conversions
+ */
+fn check_kernel(grid: &Grid, location: (isize, isize), pattern: &Grid) -> bool {
+    let point_iter = (0..pattern.height()).cartesian_product(0..pattern.width());
+    // (x,y) is pattern space
+    // (u,v) is grid space
+    for (y, x) in point_iter {
+        let (u, v) = (x + location.0, y + location.1);
+        let char_on_grid = grid.get(u, v);
+        let char_on_pattern = pattern.get(x, y);
+        // if chars match (or is the placeholder '.'), partial match. Keep searching.
+        if char_on_grid == char_on_pattern || char_on_pattern == '.' {
+            continue;
+        } else {
+            // if they don't match, definite fail.
+            return false;
+        }
+    }
+    return true;
+
+    todo!();
+}
+
 #[cfg(test)]
 mod test {
     use crate::input_constants;
@@ -148,5 +200,32 @@ MXMXAXMASX";
         let expected = 2454;
         let result = process_d4p1(input_constants::DAY4);
         assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn run_part2_example() {
+        let expected = 9;
+        let result = process_d4p2(SAMPLE_TEXT);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn run_part2_real() {
+        let expected = 1858;
+        let result = process_d4p2(SAMPLE_TEXT);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_kernel_simple_left_to_right() {
+        /* Input is left-to-right X MAX
+        MES     M.S
+        SAS     .A.
+        MRS     M.S
+         */
+        let input = "MES\nSAS\nMRS";
+        let pattern = Grid::from("M.S\n.A.\nM.S");
+        let result = check_kernel(&Grid::from(input), (0, 0), &pattern);
+        assert!(result);
     }
 }
