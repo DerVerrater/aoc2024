@@ -29,7 +29,7 @@ fn main() {
         process_d3p1(input_constants::DAY3)
     );
     println!(
-        "Day 3 Part 3 result: {}",
+        "Day 3 Part 2 result: {}",
         process_d3p2(input_constants::DAY3)
     );
 }
