@@ -21,6 +21,73 @@ pub fn process_d3p1(input: &str) -> i32 {
     return sum;
 }
 
+pub fn process_d3p2(input: &str) -> i32 {
+    let mut sum = 0i32;
+    let mut execute_enable = true;
+    let mut scan_location = input;
+    loop {
+        // Try to find a mul instruction
+
+        // 1. Find "mul"...
+        //  ... and then the rest of the instruction.
+        //      true:   accumulate value (remember the do() and don't() toggle!)
+        //      false:  advance pointer and continue
+        //          ... since "mul" was found, this can't be a "do" or "don't" section, so advancing pointer is safe
+        // 2. find "don't"
+        //      Try for longer word before shorter so we don't get a false match
+        // 3. find "do"
+        // 4. advance pointer and try again
+
+        let maybe_mul = try_consume_instruction(scan_location);
+        match maybe_mul {
+            /* if successful...
+               1. update slice bounds
+               2. accumulate value according to the enablement flag
+            */
+            Ok((remainder, value)) => {
+                if remainder.len() > 0 {
+                    scan_location = remainder;
+                }
+                if execute_enable {
+                    sum += value;
+                }
+            }
+            // When we see "::EndOfText", stop the machine. There's no more to read.
+            Err(ParseError::EndOfText) => break,
+            Err(_) => {}
+        }
+
+        let maybe_dont = try_consume_dont(scan_location);
+        match maybe_dont {
+            Ok(remainder) => {
+                if remainder.len() > 0 {
+                    scan_location = remainder;
+                }
+                execute_enable = false;
+            }
+            Err(ParseError::EndOfText) => break,
+            Err(_) => {}
+        }
+
+        let maybe_do = try_consume_do(scan_location);
+        match maybe_do {
+            Ok(remainder) => {
+                if remainder.len() > 0 {
+                    scan_location = remainder;
+                }
+                execute_enable = true;
+            }
+            Err(ParseError::EndOfText) => break,
+            Err(_) => { /* Uh */ }
+        }
+        if scan_location.len() > 0 {
+            scan_location = &scan_location[1..];
+        } else {
+            break;
+        }
+    }
+    return sum;
+}
 
 fn try_find_tag<'input>(input: &'input str, tag: &'input str) -> Result<&'input str, ParseError> {
     let mut input_iter = input.chars();
@@ -32,7 +99,7 @@ fn try_find_tag<'input>(input: &'input str, tag: &'input str) -> Result<&'input 
                 continue;
             } else {
                 // if it doesn't, fail ::NotMulKeyword
-                return Err(ParseError::NotMulKeyword);
+                return Err(ParseError::NotKeyword);
             }
         } else {
             // if there is no more input, fail ::EndOfText
@@ -42,11 +109,23 @@ fn try_find_tag<'input>(input: &'input str, tag: &'input str) -> Result<&'input 
     // If all reference chars matched an input char...
     // ...comparison passed!
 
-    return Ok(&input[4..]);
+    return Ok(&input[tag.len()..]);
 }
 
 fn try_find_mul(input: &str) -> Result<&str, ParseError> {
     try_find_tag(input, "mul(")
+}
+
+fn try_consume_do(input: &str) -> Result<&str, ParseError> {
+    let remainder = try_find_tag(input, "do(")?;
+    let remainder = try_consume_closeparen(remainder)?;
+    return Ok(remainder);
+}
+
+fn try_consume_dont(input: &str) -> Result<&str, ParseError> {
+    let remainder = try_find_tag(input, "don't(")?;
+    let remainder = try_consume_closeparen(remainder)?;
+    return Ok(remainder);
 }
 
 fn try_consume_instruction(input: &str) -> Result<(&str, i32), ParseError> {
@@ -124,7 +203,7 @@ fn try_consume_closeparen(input: &str) -> Result<&str, ParseError> {
 
 #[derive(Debug, PartialEq)]
 enum ParseError {
-    NotMulKeyword,
+    NotKeyword,
     // MissingOpenParen isn't here because the match is part of the "mul(" pattern
     MissingCloseParen,
     NoNumber,
@@ -141,6 +220,9 @@ mod test {
     const SAMPLE_TEXT: &str =
         "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
 
+    const SAMPLE_TEXT_2: &str =
+        "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
+
     #[test]
     fn run_part1_real() {
         let expected = 157621318;
@@ -154,6 +236,36 @@ mod test {
         assert_eq!(result, 161);
     }
 
+    #[test]
+    fn run_part2_example() {
+        let result = process_d3p2(SAMPLE_TEXT_2);
+        eprintln!("Got result: {result}");
+        assert_eq!(result, 48);
+    }
+
+    #[test]
+    fn try_test_close_paren() {
+        let input = ")";
+        let result = try_consume_closeparen(input);
+        eprintln!("What: {:?}", result);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_try_dont() {
+        let input = "don't()";
+        let huh = try_consume_dont(input);
+        eprintln!("What: {:?}", huh);
+        assert!(huh.is_ok());
+    }
+
+    #[test]
+    fn test_try_do() {
+        let input = "do()";
+        let huh = try_consume_do(input);
+        eprintln!("What: {:?}", huh);
+        assert!(huh.is_ok());
+    }
     #[test]
     fn find_numbers_perfect() {
         let input = "12345";
