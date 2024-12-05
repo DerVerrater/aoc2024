@@ -3,6 +3,8 @@ use std::collections::HashSet;
 use itertools::Itertools;
 
 pub fn process_d5p1(input: &str) -> i32 {
+}
+
 /*
 Given a rule, row, and current index, check that the rule is satisfied for
 the number at that index.
