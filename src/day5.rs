@@ -3,7 +3,33 @@ use std::collections::HashSet;
 use itertools::Itertools;
 
 pub fn process_d5p1(input: &str) -> i32 {
-    todo!();
+/*
+Given a rule, row, and current index, check that the rule is satisfied for
+the number at that index.
+ */
+fn check_rule(rule: &Rule, row: &Vec<i32>, idx: usize) -> bool {
+    // The number whose position we're validating
+    let number = row.get(idx).unwrap();
+
+    // Get the other value from the Rule, and the range over which we'll search for it.
+    let (seek_range, seek_value) = if *number == rule.left {
+        (idx..row.len(), rule.right)
+    } else if *number == rule.right {
+        (row.len()..idx, rule.left)
+    } else {
+        unreachable!("Sanity check. This should be unreachable, so panic if we get here.")
+    };
+
+    // seek over that range looking for the other value
+    for i in seek_range {
+        let v = row.get(i).unwrap();
+        if *v == seek_value {
+            return true;
+        }
+    }
+    false
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct Rule {
     left: i32,
@@ -150,5 +176,20 @@ mod test {
         ].into_iter());
         let result = HashSet::from_iter(select_partial_rules(&ALL_EXAMPLE_RULES.into(), 97));
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn check_rule_checker() {
+        // check that 75 is to the left of 29
+        let input_rule = Rule::new(75, 29);
+        let input_row = vec![75, 47, 61, 53, 29];
+        let input_idx = 0;
+        let result = check_rule(&input_rule, &input_row, input_idx);
+        assert_eq!(result, true);
+
+        // check that 47 is to the left of 75 (it's not. This is supposed to eval false)
+        let input_rule = Rule::new(47, 75);
+        let result = check_rule(&input_rule, &input_row, input_idx);
+        assert_eq!(result, false);
     }
 }
