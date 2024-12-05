@@ -14,6 +14,10 @@ impl Rule {
     const fn new(left: i32, right: i32) -> Self {
         Self { left, right }
     }
+
+    const fn contains(&self, num: i32) -> bool {
+        self.left == num || self.right == num
+    }
 }
 
 type RuleSet = HashSet<Rule>;
@@ -36,6 +40,19 @@ fn select_active_rules(rules: RuleSet, number_sequence: Vec<i32>) -> RuleSet {
         .map(|item| item.clone())
         .collect();
     return intersection;
+}
+
+/*
+Filter a RuleSet to include only Rules which have `number` as one of their components.
+ */
+fn select_partial_rules<'rulelife>(
+    rules: &'rulelife RuleSet,
+    number: i32,
+) -> impl Iterator<Item = Rule> + 'rulelife {
+    rules
+        .iter()
+        .filter(move |rule| rule.contains(number))
+        .map(|rule_ref| rule_ref.clone())
 }
 
 #[cfg(test)]
@@ -118,6 +135,20 @@ mod test {
             .into_iter(),
         );
         let result = select_active_rules(ALL_EXAMPLE_RULES.into(), vec![75, 47, 61, 53, 29]);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn partial_rule_selector() {
+        let expected: RuleSet = HashSet::from_iter(vec![
+            Rule::new(97, 13),
+            Rule::new(97, 61),
+            Rule::new(97, 47),
+            Rule::new(97, 29),
+            Rule::new(97, 53),
+            Rule::new(97, 75),
+        ].into_iter());
+        let result = HashSet::from_iter(select_partial_rules(&ALL_EXAMPLE_RULES.into(), 97));
         assert_eq!(result, expected);
     }
 }
