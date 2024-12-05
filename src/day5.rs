@@ -25,13 +25,13 @@ type RuleSet = HashSet<Rule>;
 /*
 I'm lazy, and this selection is just a set intersection. Use HashSet::intersection()
  */
-fn select_active_rules(rules: RuleSet, number_sequence: Vec<i32>) -> RuleSet {
+fn select_active_rules(rules: &RuleSet, number_sequence: &Vec<i32>) -> RuleSet {
     // Numbers in the input determine the rules to select. Generate Rule pairs
     // to intersect with the primary rule set.
     let pairs: Vec<Rule> = number_sequence
         .into_iter()
         .combinations(2)
-        .map(|combos| Rule::new(*combos.get(0).unwrap(), *combos.get(1).unwrap()))
+        .map(|combos| Rule::new(**combos.get(0).unwrap(), **combos.get(1).unwrap()))
         .collect();
 
     let set_pairs: RuleSet = HashSet::from_iter(pairs.into_iter());
@@ -134,7 +134,7 @@ mod test {
             ]
             .into_iter(),
         );
-        let result = select_active_rules(ALL_EXAMPLE_RULES.into(), vec![75, 47, 61, 53, 29]);
+        let result = select_active_rules(&ALL_EXAMPLE_RULES.into(), &vec![75, 47, 61, 53, 29]);
         assert_eq!(result, expected);
     }
 
