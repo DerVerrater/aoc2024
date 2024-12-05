@@ -210,7 +210,7 @@ MXMXAXMASX";
     #[test]
     fn run_part2_real() {
         let expected = 1858;
-        let result = process_d4p2(SAMPLE_TEXT);
+        let result = process_d4p2(input_constants::DAY4);
         assert_eq!(expected, result);
     }
 
