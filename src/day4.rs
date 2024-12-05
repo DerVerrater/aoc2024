@@ -167,8 +167,6 @@ fn check_kernel(grid: &Grid, location: (isize, isize), pattern: &Grid) -> bool {
         }
     }
     return true;
-
-    todo!();
 }
 
 #[cfg(test)]
