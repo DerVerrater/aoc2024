@@ -190,6 +190,30 @@ mod test {
     }
 
     #[test]
+    fn test_rule_selector_outoforder() {
+        let expected: RuleSet = HashSet::from_iter(
+            vec![
+                /*
+                This first one is in the primary list, but the sequence will look for `75, 97`
+                 */
+                Rule::new(97, 75),
+                Rule::new(75, 47),
+                Rule::new(75, 61),
+                Rule::new(75, 53),
+                Rule::new(97, 47),
+                Rule::new(97, 61),
+                Rule::new(97, 53),
+                Rule::new(47, 61),
+                Rule::new(47, 53),
+                Rule::new(61, 53),
+            ]
+            .into_iter(),
+        );
+        let result = select_active_rules(&ALL_EXAMPLE_RULES.into(), &vec![75, 97, 47, 61, 53]);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
     fn partial_rule_selector() {
         let expected: RuleSet = HashSet::from_iter(vec![
             Rule::new(97, 13),
