@@ -181,17 +181,43 @@ mod test {
     }
 
     #[test]
-    fn check_rule_checker() {
-        // check that 75 is to the left of 29
-        let input_rule = Rule::new(75, 29);
+    fn check_rule_checker_idx0_rightscan() {
+        let rules = vec![
+            Rule::new(75, 47),
+            Rule::new(75, 61),
+            Rule::new(75, 53),
+            Rule::new(75, 29),
+        ];
         let input_row = vec![75, 47, 61, 53, 29];
-        let input_idx = 0;
-        let result = check_rule(&input_rule, &input_row, input_idx);
-        assert_eq!(result, true);
+        for rule in rules {
+            assert!(check_rule(&rule, &input_row, 0));
+        }
+    }
 
-        // check that 47 is to the left of 75 (it's not. This is supposed to eval false)
-        let input_rule = Rule::new(47, 75);
-        let result = check_rule(&input_rule, &input_row, input_idx);
-        assert_eq!(result, false);
+    #[test]
+    fn check_rule_checker_idx1_rightscan() {
+        let rules = vec![Rule::new(75, 47), Rule::new(47, 61), Rule::new(47, 29)];
+        let input_row = vec![75, 47, 61, 53, 29];
+        for rule in rules {
+            assert!(check_rule(&rule, &input_row, 1));
+        }
+    }
+
+    #[test]
+    fn check_rule_checker_idx_end_leftscan() {
+        let rules = vec![Rule::new(75, 29), Rule::new(61, 29), Rule::new(53, 29)];
+        let input_row = vec![75, 47, 61, 53, 29];
+        for rule in rules {
+            assert!(check_rule(&rule, &input_row, 4));
+        }
+    }
+
+    #[test]
+    fn check_rule_checker_idx_end_m1_leftscan() {
+        let rules = vec![Rule::new(75, 53), Rule::new(61, 53), Rule::new(53, 29)];
+        let input_row = vec![75, 47, 61, 53, 29];
+        for rule in rules {
+            assert!(check_rule(&rule, &input_row, 3));
+        }
     }
 }
