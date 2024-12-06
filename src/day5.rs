@@ -41,10 +41,8 @@ fn check_rule(rule: &Rule, row: &Vec<i32>, idx: usize) -> bool {
         }
     } else if *number == rule.right {
         // We're on right number/ Scan left for left number.
-        eprintln!("Number on right. Iterating leftward <===");
         for i in (0..idx).rev() {
             let v = row.get(i).unwrap();
-            eprintln!("idx: {i}");
             if *v == rule.left {
                 return true;
             }
