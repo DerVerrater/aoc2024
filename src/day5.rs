@@ -5,6 +5,23 @@ use itertools::Itertools;
 pub fn process_d5p1(input: &str) -> i32 {
 }
 
+fn check_digits(rules: &RuleSet, row: &Vec<i32>) -> bool {
+    // 2. for each number...
+    for (idx, num) in row.iter().enumerate() {
+        // 3. Get rules to enforce
+        let to_enforce = select_partial_rules(rules, *num);
+        for rule in to_enforce {
+            // 4. Scan left/right to see if the other value is present.
+            if check_rule(&rule, &row, idx) {
+                continue;
+            } else {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 /*
 Given a rule, row, and current index, check that the rule is satisfied for
 the number at that index.
@@ -225,5 +242,19 @@ mod test {
         for rule in rules {
             assert!(check_rule(&rule, &input_row, 3));
         }
+    }
+
+    #[test]
+    fn check_check_digits_good() {
+        let sequence = vec![75, 47, 61, 53, 29]; // Known good sequence (from example text)
+        let to_enforce = select_active_rules(&ALL_EXAMPLE_RULES.into(), &sequence);
+        assert!(check_digits(&to_enforce, &sequence));
+    }
+
+    #[test]
+    fn check_check_digits_bad() {
+        let sequence = vec![75, 97, 47, 61, 53]; // Known BAD sequence (from example text)
+        let to_enforce = select_active_rules(&ALL_EXAMPLE_RULES.into(), &sequence);
+        assert!(!check_digits(&to_enforce, &sequence));
     }
 }
