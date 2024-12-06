@@ -77,9 +77,11 @@ I'm lazy, and this selection is just a set intersection. Use HashSet::intersecti
 fn select_active_rules(rules: &RuleSet, number_sequence: &Vec<i32>) -> RuleSet {
     // Numbers in the input determine the rules to select. Generate Rule pairs
     // to intersect with the primary rule set.
+    // Order cannot be enforced because the input number sequence might be out of order!
+    // Use `permitations(2)` instead of `combinations(2)`
     let pairs: Vec<Rule> = number_sequence
         .into_iter()
-        .combinations(2)
+        .permutations(2)
         .map(|combos| Rule::new(**combos.get(0).unwrap(), **combos.get(1).unwrap()))
         .collect();
 
