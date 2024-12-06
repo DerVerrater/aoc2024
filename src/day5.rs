@@ -13,22 +13,28 @@ fn check_rule(rule: &Rule, row: &Vec<i32>, idx: usize) -> bool {
     // The number whose position we're validating
     let number = row.get(idx).unwrap();
 
-    // Get the other value from the Rule, and the range over which we'll search for it.
-    let (seek_range, seek_value) = if *number == rule.left {
-        (idx..row.len(), rule.right)
+    // Get the other value from the Rule, and search towards the end in that direction
+    if *number == rule.left {
+        // We're on left number? Scan right for right number.
+        for i in idx..row.len() {
+            let v = row.get(i).unwrap();
+            if *v == rule.right {
+                return true;
+            }
+        }
     } else if *number == rule.right {
-        (row.len()..idx, rule.left)
+        // We're on right number/ Scan left for left number.
+        eprintln!("Number on right. Iterating leftward <===");
+        for i in (0..idx).rev() {
+            let v = row.get(i).unwrap();
+            eprintln!("idx: {i}");
+            if *v == rule.left {
+                return true;
+            }
+        }
     } else {
         unreachable!("Sanity check. This should be unreachable, so panic if we get here.")
     };
-
-    // seek over that range looking for the other value
-    for i in seek_range {
-        let v = row.get(i).unwrap();
-        if *v == seek_value {
-            return true;
-        }
-    }
     false
 }
 
