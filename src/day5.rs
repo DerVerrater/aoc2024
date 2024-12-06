@@ -137,7 +137,8 @@ mod test {
 61,13,29
 97,13,75,29,47";
 
-    const ALL_EXAMPLE_RULES: [Rule; 20] = [
+    const ALL_EXAMPLE_RULES: [Rule; 21] = [
+        Rule::new(47, 53),
         Rule::new(97, 13),
         Rule::new(97, 61),
         Rule::new(97, 47),
@@ -176,6 +177,7 @@ mod test {
                 Rule::new(75, 53),
                 Rule::new(75, 29),
                 Rule::new(47, 61),
+                Rule::new(47, 53),
                 Rule::new(47, 29),
                 Rule::new(61, 53),
                 Rule::new(61, 29),
