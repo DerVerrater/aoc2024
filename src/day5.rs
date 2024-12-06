@@ -2,7 +2,88 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
+/*    Design 1: Scan backwards to see if the number appears where it shouldn't
+
+1. Select active rules based on numbers
+2. For each number...
+    3. Get rules regarding that number
+    4. Branch on input number's side of rule
+        4A: Input on Left:
+            - scan sequence right-to-left looking for number `rule.right`
+            - if found, sequence is bad. That number should be to the right of the input, not to the left
+            - else, sequence is okay. Keep looking.
+        4B: Input on Right:
+            - scan sequence left-to-right looking for number `rule.left`
+            - if found, sequence is bad. That number should be to the left of the innput, not to the right
+            - else, sequence is okay. Keep looking.
+
+Notes:
+    When the sequence is already in-order, this algorithm will search *away* from the answer, resulting in a high number of checks.
+    If numbers are duplicated (which I don't think is possible), this will detect the duplicates placed on the wrong side of a counterpart.
+ */
+
+/*
+Design 2: Scan forwards to see if the number is where it should be
+1. Select active rules based on numbers
+2. For each number...
+    3. Get rules regarding that number
+    4. Branch on number's place in Rule
+        4A: Input on Left:
+            - Search for `rule.right` to the right of the number.
+            - if found, sequence is good.
+            - else, bad
+        4B: Input on Right:
+            - Search for `rule.left` to the left of the number.
+            - if found, ...
+            - ...
+
+Notes:
+    When the sequence is already in-order, this is more likely to quickly find the answer. This will stop the check early, and so has a lower
+    computational cost.
+
+    Concern: What happens when scanning for a number, and the end of the array is reached? I.e.: The number is not present.
+    Answer: The list is not ordered properly. The number must exist in the opposite direction to the one checked. It is not
+    possible to have a properly ordered list, and not find the matched pair to a Rule. For a Rule to be checked, it must be
+    in the RuleSet. To be in the RuleSet, it must have been present in the input list.
+ */
+
+// this follows "design 2"
 pub fn process_d5p1(input: &str) -> i32 {
+    let mut parts = input.split("\n\n");
+    let rules: Vec<Rule> = parts
+        .next()
+        .unwrap()
+        .split("\n")
+        .map(|line| {
+            let mut nums = line.split("|");
+            let left = nums.next().unwrap().parse::<i32>().unwrap();
+            let right = nums.next().unwrap().parse::<i32>().unwrap();
+            Rule { left, right }
+        })
+        .collect();
+
+    let page_sequences: Vec<Vec<i32>> = parts
+        .next()
+        .unwrap()
+        .split("\n")
+        .map(|line| {
+            line.split(",")
+                .map(|number| number.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>()
+        })
+        .collect();
+
+    let rules: HashSet<Rule> = HashSet::from_iter(rules.into_iter());
+    let mut sum = 0;
+    for row in page_sequences {
+        // 1. select active rules
+        let active_rules = select_active_rules(&rules, &row);
+        if check_digits(&active_rules, &row) {
+            let middle_value = row.get(row.len() / 2).unwrap();
+            sum += middle_value;
+        }
+    }
+    return sum;
 }
 
 fn check_digits(rules: &RuleSet, row: &Vec<i32>) -> bool {
@@ -108,7 +189,14 @@ fn select_partial_rules<'rulelife>(
 
 #[cfg(test)]
 mod test {
+    use crate::input_constants;
+
     use super::*;
+
+    #[test]
+    fn run_part1_real() {
+        assert_eq!(6505, process_d5p1(input_constants::DAY5))
+    }
 
     const SAMPLE_TEXT: &str = "47|53
 97|13
@@ -217,14 +305,17 @@ mod test {
 
     #[test]
     fn partial_rule_selector() {
-        let expected: RuleSet = HashSet::from_iter(vec![
-            Rule::new(97, 13),
-            Rule::new(97, 61),
-            Rule::new(97, 47),
-            Rule::new(97, 29),
-            Rule::new(97, 53),
-            Rule::new(97, 75),
-        ].into_iter());
+        let expected: RuleSet = HashSet::from_iter(
+            vec![
+                Rule::new(97, 13),
+                Rule::new(97, 61),
+                Rule::new(97, 47),
+                Rule::new(97, 29),
+                Rule::new(97, 53),
+                Rule::new(97, 75),
+            ]
+            .into_iter(),
+        );
         let result = HashSet::from_iter(select_partial_rules(&ALL_EXAMPLE_RULES.into(), 97));
         assert_eq!(result, expected);
     }

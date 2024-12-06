@@ -2,12 +2,14 @@ mod day1;
 mod day2;
 mod day3;
 mod day4;
+mod day5;
 mod input_constants;
 
 use day1::{process_d1p1, process_d1p2};
 use day2::{process_d2p1, process_d2p2};
 use day3::{process_d3p1, process_d3p2};
 use day4::{process_d4p1, process_d4p2};
+use day5::process_d5p1;
 
 fn main() {
     println!(
@@ -41,5 +43,9 @@ fn main() {
     println!(
         "Day 4 Part 2 Result: {}",
         process_d4p2(input_constants::DAY4)
+    );
+    println!(
+        "Day 5 Part 1 Result: {}",
+        process_d5p1(input_constants::DAY5)
     );
 }
