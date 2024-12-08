@@ -158,6 +158,12 @@ mod test {
     use super::*;
     use crate::input_constants;
 
+    #[test]
+    fn run_part1_real() {
+        let expected = 5242;
+        assert_eq!(process_d6p1(input_constants::DAY6), expected);
+    }
+
     const SAMPLE_TEXT: &str = 
 "....#.....
 .........#
