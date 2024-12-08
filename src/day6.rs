@@ -60,7 +60,7 @@ fn parse(input: &str) -> (Guard, Board) {
                         pos: (idx as isize % width, idx as isize / width),
                         facing: Facing::Up,
                     };
-                    Tile::Space
+                    Tile::VisitedSpace
                 }
                 _ => panic!("Unexpected character in input string! Char: {}", c as i32),
             }
