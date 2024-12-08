@@ -1,18 +1,14 @@
 pub fn process_d6p1(input: &str) -> i32 {
-    let (mut guard, board) = parse(input);
-    let mut paces = 0;
-    loop {
-        if let Some(step) = step_guard(&mut guard, &board) {
-            if step {
-                paces += 1;
-            } else {
-                continue;
-            }
-        } else {
-            break;
-        }
+    let (mut guard, mut board) = parse(input);
+    
+    // Wow, this is dumb.
+    // Loop until we leave the board.
+    while step_guard(&mut guard, &mut board) {
+        continue;
     }
-    paces
+
+    // iterate the board tiles and count `VisitedSpace`s
+    board.tiles.into_iter().filter(|tile| tile == &Tile::VisitedSpace).count() as i32
 }
 
 pub fn process_d6p2(input: &str) -> i32 {
@@ -32,6 +28,14 @@ impl Board {
         }
 
         self.tiles.get(x as usize + (y * self.width) as usize)
+    }
+
+    fn get_mut(&mut self, x: isize, y: isize) -> Option<&mut Tile> {
+        if x < 0 || x >= self.width || y < 0 || y > self.height {
+            return None;
+        }
+
+        self.tiles.get_mut(x as usize + (y * self.width) as usize)
     }
 }
 
@@ -78,37 +82,43 @@ struct Guard {
     facing: Facing,
 }
 
-// Some(bool) indicates that the guard moved. The bool indicates if it moved forward, or just rotated
-// None indicates that the guard did not move, because it left the board. Stop moving.
-fn step_guard(guard: &mut Guard, board: &Board) -> Option<bool> {
+// Some(bool) indicates that the guard moved. The bool indicates if it is still on the board.
+fn step_guard(guard: &mut Guard, board: &mut Board) -> bool {
     // get the step direction, then the tile at that spot.
     let next_pos = (
         guard.pos.0 + guard.facing.as_delta().0,
         guard.pos.1 + guard.facing.as_delta().1,
     );
-    if let Some(next_tile) = board.get(next_pos.0, next_pos.1) {
+    if let Some(next_tile) = board.get_mut(next_pos.0, next_pos.1) {
         // if there's a tile here, see if we can move
         match next_tile {
             Tile::Space => {
-                // Move into empty space, indicate successful move to caller
+                // Move into empty space, turn Space into VisitedSpace
                 guard.pos = next_pos;
-                return Some(true);
+                *next_tile = Tile::VisitedSpace;
+            },
+            Tile::VisitedSpace => {
+                // Move into the empty visited space.
+                guard.pos = next_pos;
             }
             Tile::Obstacle => {
-                // obstacle. Rotate and stay put. Indicate successful not-move to caller.
+                // obstacle. Rotate and stay put.
                 guard.facing = guard.facing.following();
-                return Some(false);
             }
         }
+        // tile was Some(_), so we're on the board. return true
+        return true;
     } else {
         // there's no tile, we have left the board. Stop walking.
-        return None;
+        return false;
     }
 }
 
 // I'm anticipating additional tile types in part 2S
+#[derive(PartialEq)]
 enum Tile {
-    Space,
+    Space,          // empty space
+    VisitedSpace,   // space the guard has visited
     Obstacle,
 }
 
@@ -126,9 +136,9 @@ impl Facing {
     fn as_delta(&self) -> (isize, isize) {
         match self {
             Facing::Right => (1, 0),
-            Facing::Up => (0, 1),
+            Facing::Up => (0, -1),
             Facing::Left => (-1, 0),
-            Facing::Down => (0, -1),
+            Facing::Down => (0, 1),
         }
     }
 
