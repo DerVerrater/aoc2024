@@ -53,7 +53,7 @@ fn parse(input: &str) -> (Guard, Board) {
                 '^' => {
                     // this is the guard, but the guard is *on* a space.
                     guard = Guard {
-                        pos: (idx as isize / width, idx as isize % width),
+                        pos: (idx as isize % width, idx as isize / width),
                         facing: Facing::Up,
                     };
                     Tile::Space
