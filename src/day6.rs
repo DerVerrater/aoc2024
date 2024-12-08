@@ -144,7 +144,6 @@ impl Facing {
 
 #[cfg(test)]
 mod test {
-    use std::os::unix::process;
 
     use super::*;
     use crate::input_constants;
