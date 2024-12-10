@@ -81,18 +81,19 @@ impl Grid {
         }
     }
 
-    fn get_mut(&mut self, x: isize, y: isize) -> Option<&char> {
+    fn get_mut(&mut self, x: isize, y: isize) -> Option<&mut char> {
         if x < 0 || x >= self.width || y < 0 || y >= self.height {
             None
         } else {
             let idx = x + y * self.width;
-            if let Some(letter) = self.letters.get(idx as usize) {
+            let letters_len = self.letters.len();
+            if let Some(letter) = self.letters.get_mut(idx as usize) {
                 return Some(letter);
             } else {
                 eprintln!("Failed to get letter at idx: {idx}, coords {x}, {y}");
                 eprintln!(
                     "Vec size is {}, Grid size is ({}, {})",
-                    self.letters.len(),
+                    letters_len,
                     self.width,
                     self.height
                 );
