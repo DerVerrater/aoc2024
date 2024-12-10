@@ -1,6 +1,6 @@
 pub fn process_d6p1(input: &str) -> i32 {
     let (mut guard, mut board) = parse(input);
-    
+
     // Wow, this is dumb.
     // Loop until we leave the board.
     while step_guard(&mut guard, &mut board) {
@@ -8,7 +8,11 @@ pub fn process_d6p1(input: &str) -> i32 {
     }
 
     // iterate the board tiles and count `VisitedSpace`s
-    board.tiles.into_iter().filter(|tile| tile == &Tile::VisitedSpace).count() as i32
+    board
+        .tiles
+        .into_iter()
+        .filter(|tile| tile == &Tile::VisitedSpace)
+        .count() as i32
 }
 
 pub fn process_d6p2(input: &str) -> i32 {
@@ -73,7 +77,7 @@ fn parse(input: &str) -> (Guard, Board) {
             width,
             height,
         },
-    )
+    );
 }
 
 #[derive(Default)]
@@ -96,7 +100,7 @@ fn step_guard(guard: &mut Guard, board: &mut Board) -> bool {
                 // Move into empty space, turn Space into VisitedSpace
                 guard.pos = next_pos;
                 *next_tile = Tile::VisitedSpace;
-            },
+            }
             Tile::VisitedSpace => {
                 // Move into the empty visited space.
                 guard.pos = next_pos;
@@ -117,8 +121,8 @@ fn step_guard(guard: &mut Guard, board: &mut Board) -> bool {
 // I'm anticipating additional tile types in part 2S
 #[derive(PartialEq)]
 enum Tile {
-    Space,          // empty space
-    VisitedSpace,   // space the guard has visited
+    Space,        // empty space
+    VisitedSpace, // space the guard has visited
     Obstacle,
 }
 
@@ -164,8 +168,7 @@ mod test {
         assert_eq!(process_d6p1(input_constants::DAY6), expected);
     }
 
-    const SAMPLE_TEXT: &str = 
-"....#.....
+    const SAMPLE_TEXT: &str = "....#.....
 .........#
 ..........
 ..#.......

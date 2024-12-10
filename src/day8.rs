@@ -21,7 +21,7 @@ pub fn process_d8p1(input: &str) -> i32 {
        filter to match frequencies
        compute antinode position
        write antinodes to the antinode_map
-    
+
     */
     let antinodes = station_pairs
         .into_iter()
@@ -33,11 +33,15 @@ pub fn process_d8p1(input: &str) -> i32 {
     for antinode in antinodes {
         if let Some(char_in_map) = antinode_map.get_mut(antinode.0, antinode.1) {
             *char_in_map = '#';
-        }// else, not in the map. Continue iterating
+        } // else, not in the map. Continue iterating
     }
 
     // count number of antinodes ('#' symbols in vec)
-    let sum = antinode_map.letters.into_iter().filter(|letter| letter == &'#').count();
+    let sum = antinode_map
+        .letters
+        .into_iter()
+        .filter(|letter| letter == &'#')
+        .count();
 
     return sum as i32;
 }
@@ -52,7 +56,7 @@ struct Grid {
 impl Grid {
     fn empty(width: isize, height: isize) -> Self {
         let mut letters = Vec::new();
-        for _ in 0..(width*height) {
+        for _ in 0..(width * height) {
             letters.push('.')
         }
 
@@ -97,9 +101,7 @@ impl Grid {
                 eprintln!("Failed to get letter at idx: {idx}, coords {x}, {y}");
                 eprintln!(
                     "Vec size is {}, Grid size is ({}, {})",
-                    letters_len,
-                    self.width,
-                    self.height
+                    letters_len, self.width, self.height
                 );
                 panic!("uh oh");
             }
@@ -147,7 +149,7 @@ impl Add for Coord {
 
 impl From<(isize, isize)> for Coord {
     fn from(value: (isize, isize)) -> Self {
-        Self (value.0, value.1)
+        Self(value.0, value.1)
     }
 }
 
@@ -169,7 +171,6 @@ fn compute_antinode(p1: Coord, p2: Coord) -> Coord {
     }
     p2 + p2 - p1 // I don't have `Mul` implemented, so I'm adding
 }
-
 
 #[cfg(test)]
 mod test {
@@ -207,14 +208,13 @@ mod test {
         The current algorithm will count two nodes if two different pairs create an antinode in the
         same place. This would not be a unique occurrence.
          */
-        let input = 
-"A....
+        let input = "A....
 .....
 A....
 .....
 ..A.A";
         /* Has antinodes like so:
-        
+
         A....
         .....
         A....
@@ -228,8 +228,7 @@ A....
 
     #[test]
     fn test_drop_oob_nodes() {
-        let input = 
-"A..
+        let input = "A..
 A..
 ...";
         /* Has antinodes like so. 'x' indicates an out-of-bounds coordinate
