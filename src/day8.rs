@@ -173,7 +173,14 @@ fn compute_antinode(p1: Coord, p2: Coord) -> Coord {
 
 #[cfg(test)]
 mod test {
+    use crate::input_constants;
+
     use super::*;
+
+    #[test]
+    fn run_part1_real() {
+        assert_eq!(214, process_d8p1(input_constants::DAY8))
+    }
 
     const SAMPLE_TEXT: &str = "............
 ........0...
