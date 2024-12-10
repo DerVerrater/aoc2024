@@ -216,4 +216,21 @@ A....
          */
         assert_eq!(1, process_d8p1(input));
     }
+
+    #[test]
+    fn test_drop_oob_nodes() {
+        let input = 
+"A..
+A..
+...";
+        /* Has antinodes like so. 'x' indicates an out-of-bounds coordinate
+         x#xxx
+         xA..x
+         xA..x
+         x#..x
+         xxxxx
+        There are 2 nodes, but only 1 is in bounds.
+         */
+        assert_eq!(1, process_d8p1(input));
+    }
 }
