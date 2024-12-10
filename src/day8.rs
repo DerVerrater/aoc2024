@@ -9,7 +9,7 @@ pub fn process_d8p1(input: &str) -> i32 {
     // filter all coordinates that are *not* a radio frequency
     let radio_stations = (0..radio_map.width())
         .cartesian_product(0..radio_map.height())
-        .filter(|coord| radio_map.get(coord.1, coord.0) != '.');
+        .filter(|coord| radio_map.get(coord.0, coord.1) != '.');
 
     let mut antinodes: Vec<Coord> = Vec::new();
 
@@ -20,22 +20,26 @@ pub fn process_d8p1(input: &str) -> i32 {
        filter out self-comparison. A single tower can't produce an antinode
        filter to match frequencies
        compute antinode position
-       if Some(antinode), it's on the map. Count 1 more antinode. Else: 0
+       write antinodes to the antinode_map
     
     */
-    station_pairs
+    let antinodes = station_pairs
         .into_iter()
         .filter(|(sta, stb)| sta != stb)
         .filter(|(sta, stb)| radio_map.get(sta.0, sta.1) == radio_map.get(stb.0, stb.1))
-        .map(|(sta, stb)| compute_antinode(Coord::from(sta), Coord::from(stb)))
-        .map(|antinode| {
-            if antinode.is_some() {
-                1
-            } else {
-                0
-            }
-        })
-        .sum()
+        .map(|(sta, stb)| compute_antinode(Coord::from(sta), Coord::from(stb)));
+
+    let mut antinode_map = Grid::empty(radio_map.width(), radio_map.height());
+    for antinode in antinodes {
+        if let Some(char_in_map) = antinode_map.get_mut(antinode.0, antinode.1) {
+            *char_in_map = '#';
+        }// else, not in the map. Continue iterating
+    }
+
+    // count number of antinodes ('#' symbols in vec)
+    let sum = antinode_map.letters.into_iter().filter(|letter| letter == &'#').count();
+
+    return sum as i32;
 }
 
 #[derive(Debug)]
@@ -122,7 +126,7 @@ impl From<&str> for Grid {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 struct Coord(isize, isize);
 
 impl Sub for Coord {
@@ -157,15 +161,13 @@ impl From<(isize, isize)> for Coord {
    Where 'A' is the first radio, 'B' is the second, and '#' is the antinode.
    If 'B' and 'A' are reversed, the antinode would be in the top-left, instead.
 
-   Returns `None` when the points are the same
+   Panics when the points are the same. Violent failure, instead of error handling!
 */
-fn compute_antinode(p1: Coord, p2: Coord) -> Option<Coord> {
+fn compute_antinode(p1: Coord, p2: Coord) -> Coord {
     if p1 == p2 {
-        return None;
+        panic!("You can't use a single tower to get an antinode!");
     }
-    let diff = p2 - p1;
-    let anti_coords = p2 + diff;
-    return Some(anti_coords);
+    p2 + p2 - p1 // I don't have `Mul` implemented, so I'm adding
 }
 
 
