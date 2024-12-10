@@ -47,10 +47,15 @@ struct Grid {
 
 impl Grid {
     fn empty(width: isize, height: isize) -> Self {
+        let mut letters = Vec::new();
+        for _ in 0..(width*height) {
+            letters.push('.')
+        }
+
         Grid {
             width,
             height,
-            letters: Vec::new(),
+            letters,
         }
     }
     /* Get the character at the given coordinates.
