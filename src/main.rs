@@ -5,6 +5,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day8;
+mod day9;
 mod input_constants;
 
 use day1::{process_d1p1, process_d1p2};
