@@ -1,6 +1,18 @@
 
 pub fn process_d9p1(input: &str) -> i32 {
-    todo!();
+    let _ = input
+        .chars()
+        .map(|letter| letter.to_digit(10).unwrap() ) // crash if the digit isn't a digit. They have to be.
+        .enumerate()
+        .map(|(idx, ch)| {
+            if idx % 2 == 0 {
+                // data
+            } else {
+                // empty
+            }
+        });
+    
+    return 0;
 }
 
 #[cfg(test)]
