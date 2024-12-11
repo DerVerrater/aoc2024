@@ -44,6 +44,59 @@ pub fn process_d8p1(input: &str) -> i32 {
     return sum as i32;
 }
 
+pub fn process_d8p2(input: &str) -> i32 {
+    let radio_map = Grid::from(input);
+
+    let radio_stations = (0..radio_map.width())
+        .cartesian_product(0..radio_map.height())
+        .filter(|coord| radio_map.get(coord.0, coord.1) != '.');
+
+    // Station pairs filtered to skip self-comparison and to match frequencies.
+    let station_pairs = radio_stations
+        .clone()
+        .cartesian_product(radio_stations)
+        .filter(|(sta, stb)| sta != stb)
+        .filter(|(sta, stb)| radio_map.get(sta.0, sta.1) == radio_map.get(stb.0, stb.1));
+
+    // Iterate over station pairs and place all antinodes they create.
+    let mut antinode_map = Grid::empty(radio_map.width(), radio_map.height());
+    for (sta, stb) in station_pairs {
+        // Since antinodes are lines drawn through matched pairs of stations, the stations themselves
+        // have an antinode on them...
+        // ...but I didn't make a line drawing algorithm, so I'm doing this instead:
+
+        *antinode_map.get_mut(sta.0, sta.1).unwrap() = '#'; // write antinode on sta
+        *antinode_map.get_mut(stb.0, stb.1).unwrap() = '#'; // and on stb
+
+
+        // As `Coord`s for better naming (and the +/- operators)
+        let sta = Coord::from(sta);
+        let stb = Coord::from(stb);
+        let node_delta = stb - sta;
+
+        // Loop until we exit the map.
+        // for each in-bound tile, place a '#' on it to indicate an antinode.
+        // Advance node_pos by node_delta and continue looping.
+        let mut node_pos: Coord = stb + node_delta;
+        loop {
+            if let Some(char_in_map) = antinode_map.get_mut(node_pos.0, node_pos.1) {
+                // char was in map. Make sure it's an antinode '#' and advance the position marker.
+                *char_in_map = '#';
+                node_pos = node_pos + node_delta;
+            } else {
+                // char was not in map. Break loop, stop placing nodes for this tower pair.
+                break;
+            }
+        }  
+    }
+
+    let sum = antinode_map.letters.into_iter()
+        .filter(|letter| letter == &'#')
+        .count();
+
+    return sum as i32;
+}
+
 #[derive(Debug)]
 struct Grid {
     width: isize,
@@ -181,6 +234,11 @@ mod test {
         assert_eq!(214, process_d8p1(input_constants::DAY8))
     }
 
+    #[test]
+    fn run_part2_real() {
+        assert_eq!(809, process_d8p2(input_constants::DAY8))
+    }
+
     const SAMPLE_TEXT: &str = "............
 ........0...
 .....0......
@@ -197,6 +255,11 @@ mod test {
     #[test]
     fn run_part1_example() {
         assert_eq!(process_d8p1(SAMPLE_TEXT), 14)
+    }
+
+    #[test]
+    fn run_part2_example() {
+        assert_eq!(process_d8p2(SAMPLE_TEXT), 34);
     }
 
     #[test]

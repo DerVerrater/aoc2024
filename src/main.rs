@@ -13,7 +13,7 @@ use day3::{process_d3p1, process_d3p2};
 use day4::{process_d4p1, process_d4p2};
 use day5::process_d5p1;
 use day6::{process_d6p1, process_d6p2};
-use day8::process_d8p1;
+use day8::{process_d8p1, process_d8p2};
 
 fn main() {
     println!(
@@ -59,5 +59,9 @@ fn main() {
     println!(
         "Day 8 Part 1 Result: {}",
         process_d8p1(input_constants::DAY8)
+    );
+    println!(
+        "Day 8 Part 2 Result: {}",
+        process_d8p2(input_constants::DAY8)
     );
 }
