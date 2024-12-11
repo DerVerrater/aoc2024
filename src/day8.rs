@@ -11,8 +11,6 @@ pub fn process_d8p1(input: &str) -> i32 {
         .cartesian_product(0..radio_map.height())
         .filter(|coord| radio_map.get(coord.0, coord.1) != '.');
 
-    let mut antinodes: Vec<Coord> = Vec::new();
-
     // Antinodes are produced by pairs of towers. All pairs of towers is the cartesian_product of the list of towers.
     let station_pairs = radio_stations.clone().cartesian_product(radio_stations);
 
